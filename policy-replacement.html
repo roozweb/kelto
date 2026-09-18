@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Replacement Policy — KELTO</title>
+<link rel="icon" href="img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="">
+
+<header class="site-header" id="site-header"></header>
+
+<section class="section" style="padding-top:40px;">
+  <div class="wrap" style="max-width:760px;">
+    <a href="index.html" class="back-link">&larr; Back to Home</a>
+    <h2>Replacement Policy</h2>
+    <p style="color:var(--text-dim); font-size:13px;">Last updated: <span id="last-updated"></span></p>
+    <div class="policy-body">
+      <p>We want you to love what you ordered. If something isn't right, we're happy to help with a replacement under the conditions below.</p>
+
+      <h2>When you're eligible for a replacement</h2>
+      <ul>
+        <li>You received the wrong item.</li>
+        <li>The product arrived with a manufacturing defect.</li>
+        <li>You received the wrong size.</li>
+      </ul>
+
+      <h2>When a replacement is not offered</h2>
+      <ul>
+        <li>Change of mind after the item has been worn or washed.</li>
+        <li>Damage caused by misuse or normal wear and tear.</li>
+        <li>Requests made more than 7 days after delivery.</li>
+      </ul>
+
+      <h2>How to request a replacement</h2>
+      <p>Contact us within 48 hours of delivery with your order ID, along with clear photos or a short video of the issue. Our team will review your request and confirm the next steps.</p>
+
+      <h2>Replacement process</h2>
+      <p>Once approved, we'll arrange a pickup of the original item (where available) or ask you to ship it back to us. The replacement item will be dispatched once the returned item is received and inspected, or immediately for confirmed manufacturing defects.</p>
+
+      <h2>Size exchanges</h2>
+      <p>Need a different size? Reach out within 7 days of delivery and we'll help you exchange it, subject to stock availability.</p>
+
+      <h2>Contact us</h2>
+      <p>
+        Email: <a href="mailto:{{STORE_EMAIL}}">{{STORE_EMAIL}}</a><br>
+        Phone: {{STORE_PHONE}}<br>
+        Instagram DM: <a href="{{STORE_INSTAGRAM}}" target="_blank" rel="noopener">@kelto.co_</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/main.js"></script>
+<script>
+  document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-IN', {year:'numeric', month:'long', day:'numeric'});
+  document.querySelector('.policy-body').innerHTML = document.querySelector('.policy-body').innerHTML
+    .replaceAll('{{STORE_EMAIL}}', STORE.email)
+    .replaceAll('{{STORE_PHONE}}', STORE.phone)
+    .replaceAll('{{STORE_INSTAGRAM}}', STORE.instagram);
+</script>
+</body>
+</html>

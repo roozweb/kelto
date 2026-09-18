@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment — KELTO</title>
+<link rel="icon" href="img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="">
+
+<header class="site-header" id="site-header"></header>
+
+<section class="section" style="padding-top:40px; min-height:60vh;">
+  <div class="wrap" style="max-width:640px;">
+    <a href="checkout.html" class="back-link">&larr; Back to Checkout</a>
+    <h2 style="margin-bottom:10px;">Complete Payment</h2>
+    <p style="color:var(--text-dim); margin-bottom:30px;">Review your order and pay securely with Razorpay.</p>
+
+    <div class="summary-card" id="order-summary"></div>
+
+    <div id="config-warning" style="display:none; margin-top:20px; padding:16px; border:1px solid var(--red-bright); border-radius:3px; background:rgba(211,32,43,.08); font-size:13.5px; color:var(--text-dim);">
+      Razorpay isn't connected yet. Add your <code>RAZORPAY_KEY_ID</code> in
+      <code>js/config.js</code> and run the backend in <code>/backend</code>
+      before this button can take real payments. See the project README.
+    </div>
+
+    <button class="btn btn-primary btn-block" id="pay-now-btn" style="margin-top:22px;">Pay with Razorpay</button>
+    <div id="pay-status" style="margin-top:14px; font-size:13px; color:var(--text-dim);"></div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/main.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+ KELTO_READY.then(() => {
+  const lines = cartLinesResolved();
+  const checkoutData = JSON.parse(sessionStorage.getItem('kelto_checkout') || 'null');
+
+  if(lines.length === 0 || !checkoutData){
+    location.href = 'cart.html';
+  }
+
+  const subtotal = cartSubtotal();
+  const shipping = subtotal >= STORE.freeShippingOver ? 0 : 79;
+  const total = subtotal + shipping;
+
+  document.getElementById('order-summary').innerHTML = `
+    <div class="summary-row"><span>Deliver to</span><span>${checkoutData.fullName}</span></div>
+    <div class="summary-row"><span>Address</span><span style="text-align:right; max-width:60%;">${checkoutData.address1}, ${checkoutData.city}, ${checkoutData.state} ${checkoutData.pincode}</span></div>
+    <div class="summary-row"><span>Items</span><span>${lines.reduce((n,l)=>n+l.qty,0)}</span></div>
+    <div class="summary-row total"><span>Amount payable</span><span>${fmtPrice(total)}</span></div>
+  `;
+
+  const payBtn = document.getElementById('pay-now-btn');
+  payBtn.textContent = `Pay ${fmtPrice(total)} with Razorpay`;
+
+  if(!RAZORPAY_KEY_ID || RAZORPAY_KEY_ID.startsWith('rzp_test_REPLACE')){
+    document.getElementById('config-warning').style.display = 'block';
+  }
+
+  const statusEl = document.getElementById('pay-status');
+
+  payBtn.addEventListener('click', async () => {
+    payBtn.disabled = true;
+    statusEl.textContent = 'Creating your order…';
+    try{
+      // 1. Ask OUR backend to create a Razorpay order (amount must be verified
+      //    server-side — never trust the amount from the browser alone).
+      const orderRes = await fetch(`${BACKEND_URL}/api/create-order`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          items: lines.map(l => ({ id: l.productId, size: l.size, qty: l.qty })),
+          customer: checkoutData
+        })
+      });
+      if(!orderRes.ok) throw new Error('order-failed');
+      const order = await orderRes.json();
+
+      // 2. Open Razorpay's checkout with the order id it returned.
+      const rzp = new Razorpay({
+        key: RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: STORE.name,
+        description: 'Order payment',
+        order_id: order.id,
+        prefill: {
+          name: checkoutData.fullName,
+          email: checkoutData.email,
+          contact: checkoutData.phone
+        },
+        theme: { color: '#d3202b' },
+        handler: async function(response){
+          // 3. Verify the payment signature server-side, then confirm the order.
+          statusEl.textContent = 'Verifying payment…';
+          const verifyRes = await fetch(`${BACKEND_URL}/api/verify-payment`, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ ...response, orderRef: order.orderRef })
+          });
+          if(verifyRes.ok){
+            saveCart([]);
+            sessionStorage.removeItem('kelto_checkout');
+            sessionStorage.setItem('kelto_last_order', JSON.stringify(await verifyRes.json()));
+            location.href = 'order-success.html';
+          } else {
+            statusEl.textContent = 'Payment could not be verified. Please contact support before retrying.';
+          }
+        },
+        modal: {
+          ondismiss: function(){ payBtn.disabled = false; statusEl.textContent = ''; }
+        }
+      });
+      rzp.on('payment.failed', function(){
+        statusEl.textContent = 'Payment failed. Please try again.';
+        payBtn.disabled = false;
+      });
+      rzp.open();
+      statusEl.textContent = '';
+    }catch(err){
+      console.error(err);
+      statusEl.textContent = 'Could not start payment. Make sure the backend server is running (see README).';
+      payBtn.disabled = false;
+    }
+  });
+ });
+</script>
+</body>
+</html>

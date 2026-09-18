@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Category — KELTO</title>
+<link rel="icon" href="img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="">
+
+<header class="site-header" id="site-header"></header>
+
+<section class="section" style="padding-top:40px;">
+  <div class="wrap">
+    <a href="index.html" class="back-link">&larr; Back to Home</a>
+    <div class="section-head">
+      <div>
+        <h2 id="cat-heading">Category</h2>
+        <p id="cat-count"></p>
+      </div>
+    </div>
+    <div class="product-grid" id="product-grid"></div>
+    <div class="center-cta" id="load-more-wrap" style="display:none;">
+      <button class="btn btn-outline" id="load-more">Show more</button>
+    </div>
+    <div class="empty-state" id="empty-state" style="display:none;">
+      <div class="display">Nothing here yet</div>
+      <p>New pieces for this category are on the way. Check back soon.</p>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/main.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const slug = params.get('cat') || 'tops';
+  const cat = CATEGORIES.find(c => c.slug === slug) || CATEGORIES[0];
+
+  document.title = cat.name + " — KELTO";
+  document.getElementById('page-title').textContent = cat.name + " — KELTO";
+  document.getElementById('cat-heading').textContent = cat.name;
+  document.body.setAttribute('data-page', cat.slug);
+
+  KELTO_READY.then(() => {
+    const items = getCategoryProducts(cat.slug);
+    document.getElementById('cat-count').textContent = items.length + (items.length === 1 ? " piece" : " pieces");
+
+    const grid = document.getElementById('product-grid');
+    const loadMoreWrap = document.getElementById('load-more-wrap');
+    const loadMoreBtn = document.getElementById('load-more');
+    const PAGE_SIZE = 3;
+    let shown = 0;
+
+    function cardHtml(p){
+      const stock = totalStock(p);
+      return `
+      <a class="pcard" href="product.html?id=${p.id}">
+        <div class="pcard-img">
+          ${p.tag ? `<div class="pcard-tag">${p.tag}</div>` : (stock === 0 ? `<div class="pcard-tag" style="background:#3a3735;">Sold Out</div>` : '')}
+          ${p.img ? `<img src="${p.img}" alt="${p.name}">` : `<div class="ph">K</div>`}
+        </div>
+        <div class="pcard-body">
+          <div class="name">${p.name}</div>
+          <div class="price">${fmtPrice(p.price)} ${p.oldPrice ? `<span style="color:var(--text-dim); text-decoration:line-through; font-weight:400;">${fmtPrice(p.oldPrice)}</span>` : ''}</div>
+        </div>
+      </a>`;
+    }
+
+    function renderMore(){
+      const next = items.slice(shown, shown + PAGE_SIZE);
+      grid.insertAdjacentHTML('beforeend', next.map(cardHtml).join(''));
+      shown += next.length;
+      loadMoreWrap.style.display = shown < items.length ? 'block' : 'none';
+    }
+
+    if(items.length === 0){
+      document.getElementById('empty-state').style.display = 'block';
+    } else {
+      renderMore();
+      loadMoreBtn.addEventListener('click', renderMore);
+    }
+  });
+</script>
+</body>
+</html>

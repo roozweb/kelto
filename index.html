@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KELTO — Designed to Stand Out</title>
+<meta name="description" content="KELTO clothing — tops, bottoms, accessories and caps designed to stand out.">
+<link rel="icon" href="img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home">
+
+<header class="site-header" id="site-header"></header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-eyebrow">NEW BRAND · FIRST DROP</div>
+      <h1>DESIGNED<br>TO STAND OUT</h1>
+      <p class="lede">KELTO is built for people who wear their statement, not just their size. Bold silhouettes, chrome-red detailing, and pieces made to be noticed.</p>
+      <div class="hero-cta">
+        <a href="category.html?cat=tops" class="btn btn-primary">Shop Tops</a>
+        <a href="category.html?cat=caps" class="btn btn-outline">Shop Caps</a>
+      </div>
+      <div class="badge-row">
+        <div>Free shipping over ₹500</div>
+        <div>Easy size replacement</div>
+        <div>Secure Razorpay checkout</div>
+      </div>
+    </div>
+    <div class="hero-mark">
+      <img src="img/logo.png" alt="KELTO logo">
+    </div>
+  </div>
+</section>
+
+<div class="strip">
+  <div class="strip-track">
+    <span><b>Free shipping</b> across India</span>
+    <span>Hassle-free <b>size replacement</b></span>
+    <span>Secure payments via <b>Razorpay</b></span>
+    <span>New drops every month</span>
+    <span><b>Free shipping</b> across India</span>
+    <span>Hassle-free <b>size replacement</b></span>
+    <span>Secure payments via <b>Razorpay</b></span>
+    <span>New drops every month</span>
+  </div>
+</div>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <h2>Shop by Category</h2>
+        <p>Four categories, one attitude. Find your next piece in seconds.</p>
+      </div>
+    </div>
+    <div class="cat-grid" id="cat-grid"></div>
+  </div>
+</section>
+
+<div class="blade"></div>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <h2>Fresh In</h2>
+        <p>The latest additions to the lineup.</p>
+      </div>
+      <a href="category.html?cat=tops" class="btn btn-outline">View all</a>
+    </div>
+    <div class="product-grid" id="new-grid"></div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--bg-alt);">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <h2>What people are saying</h2>
+      </div>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card"><p>"Didn't expect it to be this good. The fit is exactly what I wanted."</p><div class="who">— Aravind</div></div>
+      <div class="testi-card"><p>"Quality feels way above the price. Packaging was clean too."</p><div class="who">— Meera</div></div>
+      <div class="testi-card"><p>"Been wearing the hoodie on repeat since it landed."</p><div class="who">— Jishnu</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div><h2>Frequently Asked</h2></div>
+    </div>
+    <details class="faq-item" open>
+      <summary>What countries do you ship to?</summary>
+      <p>We currently ship across India, with select international shipping available at checkout depending on your address.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How can I track my order?</summary>
+      <p>Once your order ships, you'll receive a tracking link via email and SMS.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Do you offer free shipping?</summary>
+      <p>Yes — free shipping on all orders over ₹500 across India.</p>
+    </details>
+    <details class="faq-item">
+      <summary>When am I eligible for a replacement?</summary>
+      <p>If you received the wrong item, a defective product, or the wrong size, you can request a replacement — see our <a href="policy-replacement.html">Replacement Policy</a>.</p>
+    </details>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/main.js"></script>
+<script>
+  document.getElementById('cat-grid').innerHTML = CATEGORIES.map(c => `
+    <a class="cat-tile" href="category.html?cat=${c.slug}">
+      <div class="glyph">${c.name[0]}</div>
+      <span>${c.name}</span>
+    </a>
+  `).join('');
+
+  KELTO_READY.then(() => {
+    const freshProducts = PRODUCTS.filter(p => p.tag === "New").concat(PRODUCTS).slice(0,6);
+    const seen = new Set();
+    const uniqueFresh = freshProducts.filter(p => (seen.has(p.id) ? false : seen.add(p.id)));
+
+    document.getElementById('new-grid').innerHTML = uniqueFresh.slice(0,6).map(p => `
+      <a class="pcard" href="product.html?id=${p.id}">
+        <div class="pcard-img">
+          ${p.tag ? `<div class="pcard-tag">${p.tag}</div>` : ''}
+          ${p.img ? `<img src="${p.img}" alt="${p.name}">` : `<div class="ph">K</div>`}
+        </div>
+        <div class="pcard-body">
+          <div class="name">${p.name}</div>
+          <div class="price">${fmtPrice(p.price)} ${p.oldPrice ? `<span style="color:var(--text-dim); text-decoration:line-through; font-weight:400;">${fmtPrice(p.oldPrice)}</span>` : ''}</div>
+        </div>
+      </a>
+    `).join('');
+  });
+</script>
+</body>
+</html>

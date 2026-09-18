@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms & Conditions — KELTO</title>
+<link rel="icon" href="img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="">
+
+<header class="site-header" id="site-header"></header>
+
+<section class="section" style="padding-top:40px;">
+  <div class="wrap" style="max-width:760px;">
+    <a href="index.html" class="back-link">&larr; Back to Home</a>
+    <h2>Terms &amp; Conditions</h2>
+    <p style="color:var(--text-dim); font-size:13px;">Last updated: <span id="last-updated"></span></p>
+    <div class="policy-body">
+      <p>By accessing or purchasing from the KELTO website, you agree to the following terms and conditions. Please read them carefully before placing an order.</p>
+
+      <h2>Use of this site</h2>
+      <p>You agree to use this website only for lawful purposes and in a way that does not infringe the rights of, or restrict the use of, this site by anyone else.</p>
+
+      <h2>Products and pricing</h2>
+      <p>All product descriptions, images, and prices are subject to change without notice. We make every effort to display colors and details accurately, but slight variations may occur due to screen settings and manufacturing.</p>
+
+      <h2>Orders and acceptance</h2>
+      <p>Placing an order constitutes an offer to purchase. We reserve the right to refuse or cancel any order for reasons including product unavailability, pricing errors, or suspected fraudulent activity. If an order is cancelled after payment, a full refund will be issued.</p>
+
+      <h2>Payments</h2>
+      <p>All payments are processed securely through Razorpay. We do not store your card or banking details. Orders are confirmed only after successful payment.</p>
+
+      <h2>Shipping</h2>
+      <p>Shipping timelines and charges are detailed in our <a href="policy-shipping.html">Shipping Policy</a>.</p>
+
+      <h2>Replacements</h2>
+      <p>Our replacement terms are detailed in our <a href="policy-replacement.html">Replacement Policy</a>.</p>
+
+      <h2>Intellectual property</h2>
+      <p>All content on this site — including the KELTO name, logo, graphics, and product designs — is the property of KELTO and may not be reproduced without written permission.</p>
+
+      <h2>Limitation of liability</h2>
+      <p>KELTO is not liable for any indirect or consequential loss arising from the use of this website or our products, to the extent permitted by law.</p>
+
+      <h2>Governing law</h2>
+      <p>These terms are governed by the laws of India.</p>
+
+      <h2>Contact us</h2>
+      <p>
+        Email: <a href="mailto:{{STORE_EMAIL}}">{{STORE_EMAIL}}</a><br>
+        Phone: {{STORE_PHONE}}
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/main.js"></script>
+<script>
+  document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-IN', {year:'numeric', month:'long', day:'numeric'});
+  document.querySelector('.policy-body').innerHTML = document.querySelector('.policy-body').innerHTML
+    .replaceAll('{{STORE_EMAIL}}', STORE.email)
+    .replaceAll('{{STORE_PHONE}}', STORE.phone);
+</script>
+</body>
+</html>

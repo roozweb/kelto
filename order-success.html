@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Confirmed — KELTO</title>
+<link rel="icon" href="img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="">
+
+<header class="site-header" id="site-header"></header>
+
+<section class="section" style="padding-top:60px; min-height:60vh;">
+  <div class="wrap" style="max-width:560px; text-align:center;">
+    <div class="display" style="font-size:40px; color:var(--red-bright);">Order Confirmed</div>
+    <p style="color:var(--text-dim); margin-top:14px;">
+      Thank you for shopping with KELTO. A confirmation has been sent to your email,
+      and you'll get a tracking link once your order ships.
+    </p>
+    <div class="summary-card" id="order-ref" style="margin-top:30px; text-align:left;"></div>
+    <a href="index.html" class="btn btn-primary" style="margin-top:26px;">Continue Shopping</a>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/main.js"></script>
+<script>
+  const order = JSON.parse(sessionStorage.getItem('kelto_last_order') || 'null');
+  const el = document.getElementById('order-ref');
+  el.innerHTML = order
+    ? `<div class="summary-row"><span>Order ID</span><span>${order.orderRef || order.id || '—'}</span></div>
+       <div class="summary-row"><span>Payment ID</span><span>${order.razorpay_payment_id || '—'}</span></div>`
+    : `<div class="summary-row"><span>Order details</span><span>Sent to your email</span></div>`;
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Product — KELTO</title>
+<link rel="icon" href="img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="">
+
+<header class="site-header" id="site-header"></header>
+
+<section class="section" style="padding-top:40px;">
+  <div class="wrap" id="product-wrap">
+    <a href="#" id="back-link" class="back-link">&larr; Back</a>
+    <div class="pd-grid" id="pd-content"></div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--bg-alt);">
+  <div class="wrap">
+    <div class="section-head">
+      <div><h2>You might also like</h2></div>
+    </div>
+    <div class="product-grid" id="related-grid"></div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/main.js"></script>
+<script>
+ KELTO_READY.then(() => {
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const product = getProduct(id);
+  const wrap = document.getElementById('product-wrap');
+
+  if(!product){
+    document.getElementById('pd-content').innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="display">Product not found</div>
+        <p>This item may have been removed or the link is incorrect.</p>
+        <a href="index.html" class="btn btn-primary" style="margin-top:18px;">Back to shop</a>
+      </div>`;
+  } else {
+    document.title = product.name + " — KELTO";
+    document.getElementById('page-title').textContent = product.name + " — KELTO";
+    document.body.setAttribute('data-page', product.category);
+
+    const backLink = document.getElementById('back-link');
+    backLink.href = `category.html?cat=${product.category}`;
+    backLink.textContent = `← Back to ${CATEGORIES.find(c=>c.slug===product.category).name}`;
+
+    const stock = totalStock(product);
+    const stockClass = stock === 0 ? 'out' : (stock <= 5 ? 'low' : 'in');
+    const stockLabel = stock === 0 ? 'Out of stock' : (stock <= 5 ? `Only ${stock} left` : 'In stock');
+
+    document.getElementById('pd-content').innerHTML = `
+      <div class="pd-gallery-main">
+        ${product.img ? `<img src="${product.img}" alt="${product.name}">` : `<div class="ph">K</div>`}
+      </div>
+      <div>
+        <div class="pd-cat">${CATEGORIES.find(c=>c.slug===product.category).name}</div>
+        <h1 class="pd-title">${product.name}</h1>
+        <div class="pd-price">${fmtPrice(product.price)} ${product.oldPrice ? `<span class="old">${fmtPrice(product.oldPrice)}</span>` : ''}</div>
+        <p class="pd-desc">${product.desc}</p>
+        <div class="pd-stockline ${stockClass}">${stockLabel}</div>
+
+        <div class="size-row">
+          <div class="label">Size</div>
+          <div class="size-opts" id="size-opts">
+            ${product.sizes.map(s => `<button type="button" class="size-opt" data-size="${s}" ${product.stock[s] === 0 ? 'disabled' : ''}>${s}</button>`).join('')}
+          </div>
+        </div>
+
+        <div class="qty-row">
+          <div class="label" style="margin:0;">Qty</div>
+          <div class="qty-box">
+            <button type="button" id="qty-minus">−</button>
+            <span id="qty-val">1</span>
+            <button type="button" id="qty-plus">+</button>
+          </div>
+        </div>
+
+        <div class="pd-actions">
+          <button class="btn btn-outline" id="add-cart-btn" ${stock===0?'disabled':''}>Add to Cart</button>
+          <button class="btn btn-primary" id="buy-now-btn" ${stock===0?'disabled':''}>Buy Now</button>
+        </div>
+
+        <div class="pd-meta">
+          <details>
+            <summary>Size &amp; Fit</summary>
+            <p>True to size, regular/oversized fit as noted in the product name. Check the size chart against a similar piece you own for the best fit.</p>
+          </details>
+          <details>
+            <summary>Shipping &amp; Returns</summary>
+            <p>Free shipping across India on orders over ₹500. See our <a href="policy-shipping.html">Shipping Policy</a> and <a href="policy-replacement.html">Replacement Policy</a>.</p>
+          </details>
+          <details>
+            <summary>Care</summary>
+            <p>Machine wash cold, inside out. Do not bleach. Tumble dry low or line dry to protect the print.</p>
+          </details>
+        </div>
+      </div>
+    `;
+
+    let selectedSize = product.sizes.find(s => product.stock[s] > 0) || null;
+    let qty = 1;
+
+    const sizeOpts = document.querySelectorAll('.size-opt');
+    sizeOpts.forEach(btn => {
+      if(btn.dataset.size === selectedSize) btn.classList.add('sel');
+      btn.addEventListener('click', () => {
+        sizeOpts.forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+        selectedSize = btn.dataset.size;
+      });
+    });
+
+    const qtyVal = document.getElementById('qty-val');
+    document.getElementById('qty-minus').addEventListener('click', () => { if(qty>1){ qty--; qtyVal.textContent = qty; } });
+    document.getElementById('qty-plus').addEventListener('click', () => { qty++; qtyVal.textContent = qty; });
+
+    function requireSize(){
+      if(!selectedSize){ showToast("Please select a size"); return false; }
+      return true;
+    }
+
+    document.getElementById('add-cart-btn').addEventListener('click', () => {
+      if(!requireSize()) return;
+      addToCart(product.id, selectedSize, qty);
+    });
+
+    document.getElementById('buy-now-btn').addEventListener('click', () => {
+      if(!requireSize()) return;
+      addToCart(product.id, selectedSize, qty);
+      location.href = 'checkout.html';
+    });
+
+    const related = getCategoryProducts(product.category).filter(p => p.id !== product.id).slice(0,3);
+    document.getElementById('related-grid').innerHTML = related.map(p => `
+      <a class="pcard" href="product.html?id=${p.id}">
+        <div class="pcard-img">${p.img ? `<img src="${p.img}" alt="${p.name}">` : `<div class="ph">K</div>`}</div>
+        <div class="pcard-body">
+          <div class="name">${p.name}</div>
+          <div class="price">${fmtPrice(p.price)}</div>
+        </div>
+      </a>
+    `).join('');
+  }
+ });
+</script>
+</body>
+</html>

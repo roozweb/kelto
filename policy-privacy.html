@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — KELTO</title>
+<link rel="icon" href="img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="">
+
+<header class="site-header" id="site-header"></header>
+
+<section class="section" style="padding-top:40px;">
+  <div class="wrap" style="max-width:760px;">
+    <a href="index.html" class="back-link">&larr; Back to Home</a>
+    <h2>Privacy Policy</h2>
+    <p style="color:var(--text-dim); font-size:13px;">Last updated: <span id="last-updated"></span></p>
+    <div class="policy-body">
+      <p>This Privacy Policy explains how KELTO ("we", "us", "our") collects, uses, and protects the personal information of customers who visit our website or place an order with us.</p>
+
+      <h2>Information we collect</h2>
+      <ul>
+        <li>Contact details you provide at checkout: name, email, phone number, and shipping address.</li>
+        <li>Order information: items purchased, order value, and order history.</li>
+        <li>Payment information processed securely by Razorpay — we do not store your card, UPI, or bank details on our servers.</li>
+        <li>Basic technical data such as browser type and device information, used to keep the site working correctly.</li>
+      </ul>
+
+      <h2>How we use your information</h2>
+      <ul>
+        <li>To process and deliver your orders.</li>
+        <li>To communicate order updates, shipping confirmations, and tracking details.</li>
+        <li>To respond to customer support requests.</li>
+        <li>To improve our products, website, and shopping experience.</li>
+      </ul>
+
+      <h2>Sharing your information</h2>
+      <p>We share your information only with trusted third parties necessary to fulfil your order — such as our payment gateway (Razorpay) and courier/shipping partners. We do not sell your personal information to anyone.</p>
+
+      <h2>Data security</h2>
+      <p>We take reasonable technical and organizational measures to protect your data. Payment transactions are handled entirely by Razorpay's secure, PCI-DSS compliant infrastructure.</p>
+
+      <h2>Your rights</h2>
+      <p>You can request a copy of the information we hold about you, ask us to correct it, or request deletion of your data, subject to legal and accounting requirements, by contacting us below.</p>
+
+      <h2>Contact us</h2>
+      <p>
+        Email: <a href="mailto:{{STORE_EMAIL}}">{{STORE_EMAIL}}</a><br>
+        Phone / WhatsApp: {{STORE_PHONE}}<br>
+        {{STORE_ADDRESS_LINE}}
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/main.js"></script>
+<script>
+  document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-IN', {year:'numeric', month:'long', day:'numeric'});
+  document.querySelector('.policy-body').innerHTML = document.querySelector('.policy-body').innerHTML
+    .replaceAll('{{STORE_EMAIL}}', STORE.email)
+    .replaceAll('{{STORE_PHONE}}', STORE.phone)
+    .replaceAll('{{STORE_ADDRESS_LINE}}', STORE.address
+      ? 'Address: ' + STORE.address
+      : 'KELTO is an online-only store and does not operate a walk-in address. All support is handled by email and WhatsApp.');
+</script>
+</body>
+</html>
