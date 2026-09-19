@@ -5,4 +5,4 @@
    key SECRET in any frontend file.
    ============================================================ */
 const RAZORPAY_KEY_ID = "rzp_test_REPLACE_ME";
-const BACKEND_URL = "http://localhost:4000"; // replace with your deployed backend URL
+const BACKEND_URL = "https://kelto-backend.onrender.com"; // replace with your deployed backend URL
