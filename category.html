@@ -22,9 +22,6 @@
       </div>
     </div>
     <div class="product-grid" id="product-grid"></div>
-    <div class="center-cta" id="load-more-wrap" style="display:none;">
-      <button class="btn btn-outline" id="load-more">Show more</button>
-    </div>
     <div class="empty-state" id="empty-state" style="display:none;">
       <div class="display">Nothing here yet</div>
       <p>New pieces for this category are on the way. Check back soon.</p>
@@ -52,10 +49,6 @@
     document.getElementById('cat-count').textContent = items.length + (items.length === 1 ? " piece" : " pieces");
 
     const grid = document.getElementById('product-grid');
-    const loadMoreWrap = document.getElementById('load-more-wrap');
-    const loadMoreBtn = document.getElementById('load-more');
-    const PAGE_SIZE = 3;
-    let shown = 0;
 
     function cardHtml(p){
       const stock = totalStock(p);
@@ -72,18 +65,15 @@
       </a>`;
     }
 
-    function renderMore(){
-      const next = items.slice(shown, shown + PAGE_SIZE);
-      grid.insertAdjacentHTML('beforeend', next.map(cardHtml).join(''));
-      shown += next.length;
-      loadMoreWrap.style.display = shown < items.length ? 'block' : 'none';
-    }
-
+    // No page size / item cap: every product in this category renders at
+    // once. The grid is built fresh from whatever is in the catalog, so
+    // deleting a product just leaves one fewer card (nothing blank left
+    // behind) and adding one — 4th, 10th, whatever — just appends another
+    // card; there's no fixed number of "slots" to run out of.
     if(items.length === 0){
       document.getElementById('empty-state').style.display = 'block';
     } else {
-      renderMore();
-      loadMoreBtn.addEventListener('click', renderMore);
+      grid.innerHTML = items.map(cardHtml).join('');
     }
   });
 </script>

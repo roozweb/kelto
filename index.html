@@ -26,8 +26,6 @@
       </div>
       <div class="badge-row">
         <div>Free shipping over ₹500</div>
-        <div>Easy size replacement</div>
-        <div>Secure Razorpay checkout</div>
       </div>
     </div>
     <div class="hero-mark">
@@ -39,13 +37,13 @@
 <div class="strip">
   <div class="strip-track">
     <span><b>Free shipping</b> across India</span>
-    <span>Hassle-free <b>size replacement</b></span>
-    <span>Secure payments via <b>Razorpay</b></span>
-    <span>New drops every month</span>
+    <span>Hassle-free <b>replacement</b></span>
+    <span><b>Free shipping</b> over ₹500</span>
+    <span>Designed to <b>stand out</b></span>
     <span><b>Free shipping</b> across India</span>
-    <span>Hassle-free <b>size replacement</b></span>
-    <span>Secure payments via <b>Razorpay</b></span>
-    <span>New drops every month</span>
+    <span>Hassle-free <b>replacement</b></span>
+    <span><b>Free shipping</b> over ₹500</span>
+    <span>Designed to <b>stand out</b></span>
   </div>
 </div>
 
@@ -129,11 +127,15 @@
   `).join('');
 
   KELTO_READY.then(() => {
-    const freshProducts = PRODUCTS.filter(p => p.tag === "New").concat(PRODUCTS).slice(0,6);
-    const seen = new Set();
-    const uniqueFresh = freshProducts.filter(p => (seen.has(p.id) ? false : seen.add(p.id)));
+    // One card per category — whichever product was added most recently
+    // in that category (last one in the catalog array) — so "Fresh In"
+    // is a genuine mix across Tops/Bottoms/Accessories/Caps instead of
+    // always pulling from just one category.
+    const latestPerCategory = CATEGORIES
+      .map(c => getCategoryProducts(c.slug).slice(-1)[0])
+      .filter(Boolean);
 
-    document.getElementById('new-grid').innerHTML = uniqueFresh.slice(0,6).map(p => `
+    document.getElementById('new-grid').innerHTML = latestPerCategory.map(p => `
       <a class="pcard" href="product.html?id=${p.id}">
         <div class="pcard-img">
           ${p.tag ? `<div class="pcard-tag">${p.tag}</div>` : ''}

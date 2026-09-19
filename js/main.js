@@ -96,6 +96,16 @@ function renderChrome(activePage){
       const link = headerEl.querySelector(`[data-nav="${activePage}"]`);
       if(link) link.classList.add('active');
     }
+
+    // The mobile nav overlay drops in right below the header, whatever
+    // the header's actual height is (it changes with the logo size) —
+    // read it off the real element instead of hardcoding a pixel value
+    // that silently goes stale whenever the header's height changes.
+    const setHeaderHeightVar = () => {
+      document.documentElement.style.setProperty('--header-h', headerEl.offsetHeight + 'px');
+    };
+    setHeaderHeightVar();
+    window.addEventListener('resize', setHeaderHeightVar);
   }
 
   if(footerEl){

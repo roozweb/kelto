@@ -7,197 +7,65 @@
 <link rel="icon" href="../img/logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
-<style>
-  body{ padding-bottom:80px; }
-  .admin-wrap{ max-width:1080px; margin:0 auto; padding:36px 24px; }
-  .admin-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; flex-wrap:wrap; gap:12px;}
-  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
-  th{ text-align:left; color:var(--text-dim); font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; padding:10px 8px; border-bottom:1px solid var(--line); }
-  td{ padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:middle; }
-  td input, td select{ background:var(--bg-card); border:1px solid var(--steel); color:var(--text); padding:7px 9px; border-radius:2px; font-size:13px; width:100%; }
-  .row-actions{ display:flex; gap:8px; }
-  .row-actions button{ background:none; border:1px solid var(--steel); color:var(--text); padding:6px 10px; border-radius:2px; font-size:11.5px; }
-  .row-actions button.save{ border-color:var(--red-bright); color:var(--red-bright); }
-  .row-actions button.danger{ border-color:#e04b4b; color:#e04b4b; }
-  #login-gate{ max-width:380px; margin:100px auto; }
-  #panel{ display:none; }
-  .stock-cell{ display:flex; gap:4px; flex-wrap:wrap; }
-  .stock-cell span{ font-size:11px; background:var(--bg-card); border:1px solid var(--line); border-radius:2px; padding:3px 6px; }
-  .note{ font-size:12.5px; color:var(--text-dim); background:var(--bg-alt); border:1px solid var(--line); padding:14px 16px; border-radius:3px; margin-bottom:24px; }
-</style>
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-<div class="admin-wrap">
-
-  <div id="login-gate">
-    <div class="brand" style="margin-bottom:20px; justify-content:center;">
+<!-- ============== LOGIN ============== -->
+<div id="login-gate" class="admin-login">
+  <div class="admin-login-box">
+    <div class="brand" style="justify-content:center; margin-bottom:22px;">
       <img src="../img/logo.png" style="height:40px;">
       <span>Admin</span>
     </div>
     <div class="field">
       <label>Backend URL</label>
-      <input type="text" id="backend-url-input" placeholder="http://localhost:4000">
+      <input type="text" id="backend-url-input" placeholder="https://your-backend.onrender.com">
     </div>
     <div class="field">
       <label>Admin token</label>
       <input type="password" id="admin-token-input" placeholder="Your ADMIN_TOKEN from the backend .env">
+      <div class="err" id="login-err" style="display:none;">Wrong admin token, or the backend couldn't be reached.</div>
     </div>
-    <button class="btn btn-primary btn-block" id="login-btn">Enter</button>
-    <p class="note" style="margin-top:18px;">This panel talks to your backend server (see <code>/backend</code>). Start it locally or deploy it, then enter its URL and the admin token you set in <code>backend/.env</code>.</p>
-  </div>
-
-  <div id="panel">
-    <div class="admin-top">
-      <div>
-        <h2 style="margin:0;">Inventory</h2>
-        <p style="color:var(--text-dim); font-size:13px; margin:6px 0 0;">Edit price and stock directly. Changes save to your backend and go live on the store immediately.</p>
-      </div>
-      <div style="display:flex; gap:10px;">
-        <a href="../index.html" class="btn btn-outline">View store</a>
-        <button class="btn btn-primary" id="add-product-btn">+ Add product</button>
-      </div>
-    </div>
-
-    <div class="note" id="conn-note"></div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Category</th>
-          <th>Price (₹)</th>
-          <th>Old price</th>
-          <th>Stock (per size)</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="product-tbody"></tbody>
-    </table>
+    <button class="btn btn-primary btn-block" id="login-btn">Enter dashboard</button>
+    <p class="note" style="margin-top:18px;">This panel talks to your backend server (see <code>/backend</code>). Enter its deployed URL and the <code>ADMIN_TOKEN</code> you set on Render.</p>
   </div>
 </div>
 
-<script>
-  const LS_BACKEND = 'kelto_admin_backend';
-  const LS_TOKEN = 'kelto_admin_token';
+<!-- ============== DASHBOARD SHELL ============== -->
+<div id="app" class="admin-app" style="display:none;">
+  <aside class="admin-side" id="admin-side">
+    <div class="admin-logo">
+      <img src="../img/logo.png">
+      <div>KELTO<span>Admin console</span></div>
+    </div>
+    <nav class="admin-nav" id="admin-nav">
+      <button data-page="dashboard" class="active">Dashboard</button>
+      <button data-page="orders">Orders</button>
+      <button data-page="products">Products</button>
+      <button data-page="categories">Categories</button>
+      <button data-page="customers">Customers</button>
+      <button data-page="discounts">Discounts</button>
+      <button data-page="settings">Settings</button>
+    </nav>
+    <a href="../index.html" class="btn btn-outline btn-block" style="margin-top:auto;">&larr; View store</a>
+  </aside>
 
-  const loginGate = document.getElementById('login-gate');
-  const panel = document.getElementById('panel');
-  const backendInput = document.getElementById('backend-url-input');
-  const tokenInput = document.getElementById('admin-token-input');
+  <main class="admin-main">
+    <header class="admin-top">
+      <button class="admin-menu-toggle" id="admin-menu-toggle" aria-label="Menu">&#9776;</button>
+      <input class="admin-search" id="admin-search" placeholder="Search this page…">
+      <div class="admin-conn" id="admin-conn"></div>
+      <button class="btn btn-outline" id="logout-btn">Log out</button>
+    </header>
+    <section class="admin-content" id="admin-content"></section>
+  </main>
+</div>
 
-  backendInput.value = localStorage.getItem(LS_BACKEND) || 'http://localhost:4000';
+<div id="admin-modal" class="admin-modal hidden"></div>
+<div id="admin-toast" class="toast"></div>
 
-  let BACKEND = '', TOKEN = '';
-
-  document.getElementById('login-btn').addEventListener('click', async () => {
-    BACKEND = backendInput.value.replace(/\/$/, '');
-    TOKEN = tokenInput.value;
-    localStorage.setItem(LS_BACKEND, BACKEND);
-    localStorage.setItem(LS_TOKEN, TOKEN);
-    await tryLoad();
-  });
-
-  async function apiFetch(path, opts={}){
-    const res = await fetch(BACKEND + path, {
-      ...opts,
-      headers: { 'Content-Type':'application/json', 'x-admin-token': TOKEN, ...(opts.headers||{}) }
-    });
-    if(res.status === 401) throw new Error('unauthorized');
-    if(!res.ok) throw new Error('request-failed');
-    return res.status === 204 ? null : res.json();
-  }
-
-  async function tryLoad(){
-    try{
-      const products = await apiFetch('/api/products');
-      loginGate.style.display = 'none';
-      panel.style.display = 'block';
-      document.getElementById('conn-note').textContent = `Connected to ${BACKEND}`;
-      renderTable(products);
-    }catch(e){
-      alert(e.message === 'unauthorized'
-        ? 'Wrong admin token.'
-        : `Could not reach the backend at ${BACKEND}. Make sure the server is running.`);
-    }
-  }
-
-  function renderTable(products){
-    const tbody = document.getElementById('product-tbody');
-    tbody.innerHTML = products.map(p => `
-      <tr data-id="${p.id}">
-        <td><input type="text" class="f-name" value="${p.name}"></td>
-        <td>
-          <select class="f-category">
-            ${['tops','bottoms','accessories','caps'].map(c => `<option value="${c}" ${c===p.category?'selected':''}>${c}</option>`).join('')}
-          </select>
-        </td>
-        <td><input type="number" class="f-price" value="${p.price}"></td>
-        <td><input type="number" class="f-oldprice" value="${p.oldPrice ?? ''}"></td>
-        <td>
-          <div class="stock-cell">
-            ${Object.entries(p.stock || {}).map(([size,qty]) => `
-              <span>${size}: <input type="number" class="f-stock" data-size="${size}" value="${qty}" style="width:44px; display:inline-block; padding:2px 4px;"></span>
-            `).join('')}
-          </div>
-        </td>
-        <td>
-          <div class="row-actions">
-            <button class="save">Save</button>
-            <button class="danger">Delete</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-
-    tbody.querySelectorAll('tr').forEach(row => {
-      const id = row.dataset.id;
-      row.querySelector('.save').addEventListener('click', async () => {
-        const stock = {};
-        row.querySelectorAll('.f-stock').forEach(inp => stock[inp.dataset.size] = Number(inp.value));
-        const body = {
-          name: row.querySelector('.f-name').value,
-          category: row.querySelector('.f-category').value,
-          price: Number(row.querySelector('.f-price').value),
-          oldPrice: row.querySelector('.f-oldprice').value ? Number(row.querySelector('.f-oldprice').value) : null,
-          stock
-        };
-        try{
-          await apiFetch(`/api/products/${id}`, { method:'PUT', body: JSON.stringify(body) });
-          showSaved(row);
-        }catch(e){ alert('Could not save: ' + e.message); }
-      });
-      row.querySelector('.danger').addEventListener('click', async () => {
-        if(!confirm('Remove this product from the store?')) return;
-        try{
-          await apiFetch(`/api/products/${id}`, { method:'DELETE' });
-          row.remove();
-        }catch(e){ alert('Could not delete: ' + e.message); }
-      });
-    });
-  }
-
-  function showSaved(row){
-    const btn = row.querySelector('.save');
-    const original = btn.textContent;
-    btn.textContent = 'Saved ✓';
-    setTimeout(()=> btn.textContent = original, 1200);
-  }
-
-  document.getElementById('add-product-btn').addEventListener('click', async () => {
-    const name = prompt('Product name?');
-    if(!name) return;
-    const category = prompt('Category (tops / bottoms / accessories / caps)?', 'tops');
-    const price = Number(prompt('Price (₹)?', '999'));
-    try{
-      const created = await apiFetch('/api/products', {
-        method:'POST',
-        body: JSON.stringify({ name, category, price, sizes:['One Size'], stock:{'One Size':0}, desc:'', img:'' })
-      });
-      const products = await apiFetch('/api/products');
-      renderTable(products);
-    }catch(e){ alert('Could not add product: ' + e.message); }
-  });
-</script>
+<script src="../js/config.js"></script>
+<script src="admin.js"></script>
 </body>
 </html>

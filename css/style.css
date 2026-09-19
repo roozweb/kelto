@@ -59,8 +59,17 @@ h1,h2,h3,.display{
 .site-header{
   position:sticky; top:0; z-index:40;
   background:rgba(11,10,10,.92);
-  backdrop-filter:blur(6px);
   border-bottom:1px solid var(--line);
+}
+/* blur lives on a pseudo-element, not on .site-header itself, because
+   backdrop-filter/filter on an element creates a new containing block
+   for any fixed-position descendant — that was squashing the mobile
+   nav overlay down into the header's own ~60px box instead of letting
+   it cover the full screen. */
+.site-header::before{
+  content:"";
+  position:absolute; inset:0; z-index:-1;
+  backdrop-filter:blur(6px);
 }
 .header-row{
   display:flex; align-items:center; justify-content:space-between;
@@ -69,7 +78,7 @@ h1,h2,h3,.display{
   gap:18px;
 }
 .brand{ display:flex; align-items:center; gap:10px; }
-.brand img{ height:38px; width:auto; }
+.brand img{ height:80px; width:auto; }
 .brand span{ font-family:var(--font-display); font-size:22px; letter-spacing:.03em; }
 
 nav.main-nav{ display:flex; gap:26px; }
@@ -97,7 +106,7 @@ nav.main-nav a:hover, nav.main-nav a.active{ color:var(--text); border-color:var
 
 @media (max-width: 860px){
   nav.main-nav{
-    position:fixed; inset:64px 0 0 0; background:var(--bg);
+    position:fixed; top:var(--header-h, 64px); right:0; bottom:0; left:0; background:var(--bg);
     flex-direction:column; padding:28px 24px; gap:0;
     transform:translateY(-110%); transition:transform .25s ease;
     z-index:35; overflow-y:auto;
@@ -350,7 +359,7 @@ footer{ background:var(--bg-alt); border-top:1px solid var(--line); padding:56px
 .foot-bottom{ border-top:1px solid var(--line); margin-top:40px; padding-top:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; color:var(--text-dim); font-size:12.5px; }
 
 /* ---------- misc ---------- */
-.badge-row{ display:flex; gap:22px; flex-wrap:wrap; margin-top:10px; }
+.badge-row{ display:flex; gap:22px; flex-wrap:wrap; margin-top:26px; }
 .badge-row div{ font-size:12px; color:var(--text-dim); display:flex; align-items:center; gap:8px; }
 .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
 .admin-link{ font-size:11px; color:var(--steel); }
